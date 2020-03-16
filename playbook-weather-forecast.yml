@@ -1,1 +1,54 @@
-/home/kpang/git_work/ansible/playbooks/playbook-weather-forecast.yml
+---
+- name: Get weather forecast for Jericho from AccuWeather
+  hosts: localhost
+  gather_facts: yes
+
+  vars_files:
+          - ~/git_work/ansible/vars/accuweather.creds
+
+  vars:
+          output_file: "~/git_work/ansible/files/weather_forecast.{{ ansible_date_time.date }}.txt"
+          file_username: kpang
+          file_group: kpang
+
+  tasks:
+          - name: Print variables from vars file
+            debug:
+                    msg: "{{ apikey }}, {{ locationkey }}"
+
+          - name: HTTP GET
+            uri:
+                    method: GET
+                    url: "http://dataservice.accuweather.com/forecasts/v1/daily/5day/{{ locationkey }}?apikey={{ apikey }}"
+            register: result
+
+          - name: Check file stat for {{ output_file }}
+            stat:
+                    path: "{{ output_file }}"
+            register: file_stat
+
+          - name: Remove old {{ output_file }} if it exists
+            file:
+                    path: "{{ output_file }}"
+                    state: absent
+            when: file_stat.stat.exists == true
+
+          - name: Create a new file {{ output_file }}
+            file:
+                    path: "{{ output_file }}"
+                    owner: "{{ file_username }}"
+                    group: "{{ file_group }}"
+                    mode: "0644"
+                    state: touch
+
+          - name: Print result to {{ output_file }}
+            shell: |
+                    echo "-------------------------" >> {{ output_file }}
+                    echo "Date: {{ item.Date }}" >> {{ output_file }}
+                    echo "Weather: {{ item.Day.IconPhrase }}" >> {{ output_file }}
+                    echo "Temperate:" >> {{ output_file }}
+                    echo "   High: {{ item.Temperature.Maximum.Value }}{{ item.Temperature.Maximum.Unit }}" >> {{ output_file }}
+                    echo "   Low: {{ item.Temperature.Minimum.Value }}{{ item.Temperature.Minimum.Unit }}" >> {{ output_file }}
+
+            loop: "{{ result.json.DailyForecasts }}"
+
