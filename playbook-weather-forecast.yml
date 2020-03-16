@@ -7,9 +7,10 @@
           - /home/kpang/git_work/ansible/vars/accuweather.creds
 
   vars:
-          output_file: "/home/kpang/git_work/ansible/files/weather_forecast.{{ ansible_date_time.date }}.txt"
-          file_username: kpang
-          file_group: kpang
+          output_file: "/var/report/forecast/weather_forecast.{{ ansible_date_time.date }}.txt"
+          #output_file: "/home/kpang/git_work/ansible/files/weather_forecast.{{ ansible_date_time.date }}.txt"
+          file_username: jenkins
+          file_group: jenkins
 
   tasks:
           - name: Print variables from vars file
