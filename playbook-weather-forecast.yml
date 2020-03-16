@@ -7,7 +7,7 @@
           - ~/git_work/ansible/vars/accuweather.creds
 
   vars:
-          output_file: "~/git_work/ansible/files/weather_forecast.{{ ansible_date_time.date }}.txt"
+          output_file: "/home/kpang/git_work/ansible/files/weather_forecast.{{ ansible_date_time.date }}.txt"
           file_username: kpang
           file_group: kpang
 
